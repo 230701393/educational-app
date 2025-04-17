@@ -13,6 +13,7 @@ import Profile from "./pages/Profile";
 import CourseBuilder from "./pages/CourseBuilder";
 import Quiz from "./pages/Quiz";
 import Analytics from "./pages/Analytics";
+import Gamification from "./pages/Gamification";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +33,7 @@ const App = () => {
             <Route path="/course-builder" element={<CourseBuilder />} />
             <Route path="/quiz" element={<Quiz />} />
             <Route path="/analytics" element={<Analytics />} />
+            <Route path="/gamification" element={<Gamification />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
