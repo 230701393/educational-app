@@ -2,6 +2,7 @@
 import { ArrowUpRight, Flame } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
 
 interface UserLevelProps {
   level: number;
@@ -43,7 +44,11 @@ export function UserLevel({
               </div>
             </div>
             
-            <div className="flex items-center justify-between p-3 bg-amber-50 rounded-md">
+            <Button 
+              variant="ghost" 
+              className="flex items-center justify-between p-3 bg-amber-50 rounded-md hover:bg-amber-100 h-auto"
+              onClick={() => window.location.href = '/dashboard'}
+            >
               <div className="flex items-center">
                 <Flame className="h-5 w-5 text-amber-500 mr-2" />
                 <span className="font-medium">{streak} day streak!</span>
@@ -51,7 +56,7 @@ export function UserLevel({
               <div className="text-xs text-amber-600 font-medium flex items-center">
                 +10 XP bonus <ArrowUpRight className="ml-1 h-3 w-3" />
               </div>
-            </div>
+            </Button>
           </div>
         </div>
       </CardContent>
