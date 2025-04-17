@@ -12,6 +12,7 @@ import LearningPaths from "./pages/LearningPaths";
 import Profile from "./pages/Profile";
 import CourseBuilder from "./pages/CourseBuilder";
 import Quiz from "./pages/Quiz";
+import Analytics from "./pages/Analytics";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,7 @@ const App = () => (
           <Route path="/profile" element={<Profile />} />
           <Route path="/course-builder" element={<CourseBuilder />} />
           <Route path="/quiz" element={<Quiz />} />
+          <Route path="/analytics" element={<Analytics />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

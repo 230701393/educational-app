@@ -14,7 +14,7 @@ const Index = () => {
         </p>
         <div className="space-y-4 max-w-md mx-auto">
           <p className="text-gray-600">
-            Craft your unique learning experience with personalized profiles, adaptive paths, and interactive assessments.
+            Craft your unique learning experience with personalized profiles, adaptive paths, interactive assessments, and detailed progress tracking.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/dashboard">
@@ -22,9 +22,9 @@ const Index = () => {
                 Go to Dashboard
               </Button>
             </Link>
-            <Link to="/courses">
+            <Link to="/analytics">
               <Button size="lg" variant="outline" className="w-full">
-                Explore Courses
+                View Analytics
               </Button>
             </Link>
           </div>
