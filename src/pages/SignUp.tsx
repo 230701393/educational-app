@@ -8,50 +8,58 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Checkbox } from "@/components/ui/checkbox";
-import { LogIn, User, Key, Eye, EyeOff } from "lucide-react";
+import { Mail, User, Key, UserPlus, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
-const loginSchema = z.object({
+const signUpSchema = z.object({
+  fullName: z.string().min(2, { message: "Name must be at least 2 characters" }),
   email: z.string().email({ message: "Please enter a valid email address" }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters" }),
-  rememberMe: z.boolean().default(false),
+  password: z.string().min(8, { 
+    message: "Password must be at least 8 characters" 
+  }),
+  confirmPassword: z.string().min(8),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords do not match",
+  path: ["confirmPassword"],
 });
 
-type LoginFormValues = z.infer<typeof loginSchema>;
+type SignUpFormValues = z.infer<typeof signUpSchema>;
 
-const Login = () => {
+const SignUp = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const form = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
+  const form = useForm<SignUpFormValues>({
+    resolver: zodResolver(signUpSchema),
     defaultValues: {
+      fullName: "",
       email: "",
       password: "",
-      rememberMe: false,
+      confirmPassword: "",
     },
   });
 
-  const onSubmit = async (values: LoginFormValues) => {
+  const onSubmit = async (values: SignUpFormValues) => {
     setIsLoading(true);
     
-    // Simulate login delay
+    // Simulate sign-up delay
     setTimeout(() => {
-      console.log("Login values:", values);
+      console.log("Sign up values:", values);
       
-      // Mock successful login - in a real app, this would validate credentials against a backend
+      // Mock successful sign-up - in a real app, this would create a new user account
       toast({
-        title: "Login successful!",
-        description: "Redirecting to dashboard...",
+        title: "Account created successfully!",
+        description: "Please check your email for verification instructions.",
       });
       
-      // Redirect to dashboard after "login"
+      // Redirect to login after "sign-up"
       setTimeout(() => {
-        navigate("/dashboard");
-      }, 1000);
+        navigate("/login");
+      }, 1500);
       
       setIsLoading(false);
     }, 1500);
@@ -61,19 +69,23 @@ const Login = () => {
     setShowPassword(!showPassword);
   };
 
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link to="/" className="text-2xl font-bold text-blue-500">KnowledgeCraft</Link>
-          <p className="text-muted-foreground mt-2">Sign in to your account</p>
+          <p className="text-muted-foreground mt-2">Create your account</p>
         </div>
         
         <Card className="shadow-lg">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-center">Login</CardTitle>
+            <CardTitle className="text-2xl font-bold text-center">Sign Up</CardTitle>
             <CardDescription className="text-center">
-              Enter your credentials to access your account
+              Enter your information to create an account
             </CardDescription>
           </CardHeader>
           
@@ -82,13 +94,35 @@ const Login = () => {
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <FormField
                   control={form.control}
+                  name="fullName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Full Name</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                          <Input 
+                            placeholder="John Doe" 
+                            className="pl-10" 
+                            disabled={isLoading} 
+                            {...field} 
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
                   name="email"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
                         <div className="relative">
-                          <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                          <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                           <Input 
                             placeholder="you@example.com" 
                             className="pl-10" 
@@ -139,22 +173,45 @@ const Login = () => {
                 
                 <FormField
                   control={form.control}
-                  name="rememberMe"
+                  name="confirmPassword"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                    <FormItem>
+                      <FormLabel>Confirm Password</FormLabel>
                       <FormControl>
-                        <Checkbox 
-                          checked={field.value} 
-                          onCheckedChange={field.onChange} 
-                          disabled={isLoading}
-                        />
+                        <div className="relative">
+                          <Key className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                          <Input 
+                            type={showConfirmPassword ? "text" : "password"} 
+                            placeholder="••••••••" 
+                            className="pl-10 pr-10" 
+                            disabled={isLoading}
+                            {...field} 
+                          />
+                          <button 
+                            type="button"
+                            onClick={toggleConfirmPasswordVisibility}
+                            className="absolute right-3 top-3 text-muted-foreground"
+                            tabIndex={-1}
+                          >
+                            {showConfirmPassword ? (
+                              <EyeOff className="h-4 w-4" />
+                            ) : (
+                              <Eye className="h-4 w-4" />
+                            )}
+                          </button>
+                        </div>
                       </FormControl>
-                      <div className="space-y-1 leading-none">
-                        <FormLabel className="font-normal">Remember me</FormLabel>
-                      </div>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
+                
+                <Alert className="bg-blue-50 text-blue-800 border-blue-200">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    Password must be at least 8 characters and include a mix of letters, numbers, and symbols.
+                  </AlertDescription>
+                </Alert>
                 
                 <Button 
                   type="submit" 
@@ -164,11 +221,11 @@ const Login = () => {
                   {isLoading ? (
                     <span className="flex items-center gap-2">
                       <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" /> 
-                      Signing in...
+                      Creating account...
                     </span>
                   ) : (
                     <span className="flex items-center gap-2">
-                      <LogIn className="h-4 w-4" /> Sign in
+                      <UserPlus className="h-4 w-4" /> Create account
                     </span>
                   )}
                 </Button>
@@ -176,17 +233,11 @@ const Login = () => {
             </Form>
           </CardContent>
           
-          <CardFooter className="flex flex-col space-y-4">
-            <div className="w-full text-center text-sm">
-              <Link to="/forgot-password" className="text-blue-500 hover:text-blue-700">
-                Forgot your password?
-              </Link>
-            </div>
-            
+          <CardFooter className="flex justify-center">
             <div className="text-center text-sm text-muted-foreground">
-              Don't have an account?{" "}
-              <Link to="/signup" className="text-blue-500 hover:text-blue-700">
-                Sign up
+              Already have an account?{" "}
+              <Link to="/login" className="text-blue-500 hover:text-blue-700">
+                Sign in
               </Link>
             </div>
           </CardFooter>
@@ -196,4 +247,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default SignUp;
