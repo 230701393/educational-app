@@ -14,6 +14,7 @@ import CourseBuilder from "./pages/CourseBuilder";
 import Quiz from "./pages/Quiz";
 import Analytics from "./pages/Analytics";
 import Gamification from "./pages/Gamification";
+import Login from "./pages/Login";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +27,7 @@ const App = () => {
           <Sonner />
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/login" element={<Login />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/courses" element={<Courses />} />
             <Route path="/learning-paths" element={<LearningPaths />} />
