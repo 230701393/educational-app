@@ -10,6 +10,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Mail, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { authService } from "@/services/authService";
 
 const forgotPasswordSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -33,9 +34,18 @@ const ForgotPassword = () => {
   const onSubmit = async (values: ForgotPasswordFormValues) => {
     setIsLoading(true);
     
-    // Simulate API delay
-    setTimeout(() => {
-      console.log("Reset password for:", values.email);
+    try {
+      const { success, error } = await authService.forgotPassword(values.email);
+      
+      if (!success || error) {
+        toast({
+          title: "Error",
+          description: error || "Unable to send reset link. Please try again later.",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
       
       // Show success message
       toast({
@@ -44,8 +54,16 @@ const ForgotPassword = () => {
       });
       
       setIsSubmitted(true);
+    } catch (err) {
+      console.error("Password reset error:", err);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   return (

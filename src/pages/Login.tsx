@@ -11,6 +11,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Checkbox } from "@/components/ui/checkbox";
 import { LogIn, User, Key, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { authService } from "@/services/authService";
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -38,23 +39,43 @@ const Login = () => {
   const onSubmit = async (values: LoginFormValues) => {
     setIsLoading(true);
     
-    // Simulate login delay
-    setTimeout(() => {
-      console.log("Login values:", values);
+    try {
+      const { user, error } = await authService.login(values.email, values.password);
       
-      // Mock successful login - in a real app, this would validate credentials against a backend
+      if (error || !user) {
+        toast({
+          title: "Login failed",
+          description: error || "Invalid credentials. Please try again.",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+      
       toast({
         title: "Login successful!",
         description: "Redirecting to dashboard...",
       });
       
-      // Redirect to dashboard after "login"
+      // Save user info to local storage (temporary until proper auth is set up)
+      if (values.rememberMe) {
+        localStorage.setItem("user", JSON.stringify(user));
+      }
+      
+      // Redirect after successful login
       setTimeout(() => {
         navigate("/dashboard");
       }, 1000);
-      
+    } catch (err) {
+      console.error("Login error:", err);
+      toast({
+        title: "Login failed",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   const togglePasswordVisibility = () => {

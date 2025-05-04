@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -11,6 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Mail, User, Key, UserPlus, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { authService } from "@/services/authService";
 
 const signUpSchema = z.object({
   fullName: z.string().min(2, { message: "Name must be at least 2 characters" }),
@@ -46,23 +46,42 @@ const SignUp = () => {
   const onSubmit = async (values: SignUpFormValues) => {
     setIsLoading(true);
     
-    // Simulate sign-up delay
-    setTimeout(() => {
-      console.log("Sign up values:", values);
+    try {
+      const { user, error } = await authService.signUp(
+        values.email, 
+        values.password,
+        values.fullName
+      );
       
-      // Mock successful sign-up - in a real app, this would create a new user account
+      if (error || !user) {
+        toast({
+          title: "Registration failed",
+          description: error || "Could not create account. Please try again.",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+      
       toast({
         title: "Account created successfully!",
         description: "Please check your email for verification instructions.",
       });
       
-      // Redirect to login after "sign-up"
+      // Redirect to login after successful signup
       setTimeout(() => {
         navigate("/login");
       }, 1500);
-      
+    } catch (err) {
+      console.error("Signup error:", err);
+      toast({
+        title: "Registration failed",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   const togglePasswordVisibility = () => {
