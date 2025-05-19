@@ -18,6 +18,7 @@ import Gamification from "./pages/Gamification";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import ForgotPassword from "./pages/ForgotPassword";
+import AdminPanel from "./pages/AdminPanel";
 
 const queryClient = new QueryClient();
 
@@ -39,9 +40,11 @@ const App = () => {
               <Route path="/learning-paths" element={<LearningPaths />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/course-builder" element={<CourseBuilder />} />
+              <Route path="/course-builder/:id" element={<CourseBuilder />} />
               <Route path="/quiz" element={<Quiz />} />
               <Route path="/analytics" element={<Analytics />} />
               <Route path="/gamification" element={<Gamification />} />
+              <Route path="/admin" element={<AdminPanel />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
