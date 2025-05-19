@@ -32,6 +32,16 @@ const mockUsers: User[] = [
   }
 ];
 
+// For mock password resets
+interface PasswordResetRequest {
+  email: string;
+  token: string;
+  createdAt: Date;
+}
+
+// Mock store for password reset requests
+const passwordResetRequests: PasswordResetRequest[] = [];
+
 export const authService = {
   // Login with email and password
   async login(email: string, password: string): Promise<AuthResponse> {
@@ -118,7 +128,64 @@ export const authService = {
       return { success: false, error: 'No user found with this email' };
     }
     
-    // Mock successful password reset request
+    // Generate reset token
+    const token = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    
+    // In a real app, we'd store this token with the user and set an expiration
+    // Here we'll just store it in our mock array
+    passwordResetRequests.push({
+      email,
+      token,
+      createdAt: new Date()
+    });
+    
+    // In a real app, this would send an actual email with a reset link
+    // Here we just log it
+    console.log(`Reset link for ${email}: https://yourapp.com/reset-password?token=${token}`);
+    
+    return { success: true, error: null };
+  },
+
+  // Verify reset token
+  async verifyResetToken(token: string): Promise<{ valid: boolean; email: string | null }> {
+    // Find the token in our reset requests
+    const resetRequest = passwordResetRequests.find(r => r.token === token);
+    
+    if (!resetRequest) {
+      return { valid: false, email: null };
+    }
+    
+    // Check if token is expired (24 hours)
+    const now = new Date();
+    const expirationTime = new Date(resetRequest.createdAt);
+    expirationTime.setHours(expirationTime.getHours() + 24);
+    
+    if (now > expirationTime) {
+      return { valid: false, email: null };
+    }
+    
+    return { valid: true, email: resetRequest.email };
+  },
+  
+  // Reset password with token
+  async resetPassword(token: string, newPassword: string): Promise<{ success: boolean; error: string | null }> {
+    // Verify the token
+    const { valid, email } = await this.verifyResetToken(token);
+    
+    if (!valid || !email) {
+      return { success: false, error: 'Invalid or expired reset token' };
+    }
+    
+    // In a real app, we'd update the user's password in the database
+    // Here we just log it
+    console.log(`Password reset for ${email} to "${newPassword}"`);
+    
+    // Remove the used token
+    const tokenIndex = passwordResetRequests.findIndex(r => r.token === token);
+    if (tokenIndex !== -1) {
+      passwordResetRequests.splice(tokenIndex, 1);
+    }
+    
     return { success: true, error: null };
   },
 

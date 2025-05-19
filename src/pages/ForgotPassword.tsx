@@ -49,11 +49,15 @@ const ForgotPassword = () => {
       
       // Show success message
       toast({
-        title: "Reset link sent",
+        title: "Reset email sent",
         description: "Please check your email for password reset instructions.",
       });
       
       setIsSubmitted(true);
+
+      // In a production environment, the email would be sent by the backend
+      // For demo purposes, we're logging to the console - check the browser console
+      console.log("Note: In a real environment, an email would be sent. For this demo, check the console logs for the reset link.");
     } catch (err) {
       console.error("Password reset error:", err);
       toast({
@@ -121,7 +125,7 @@ const ForgotPassword = () => {
                         Sending reset link...
                       </span>
                     ) : (
-                      "Send Reset Link"
+                      "Send Reset Email"
                     )}
                   </Button>
                 </form>
@@ -129,9 +133,12 @@ const ForgotPassword = () => {
             ) : (
               <div className="text-center space-y-4">
                 <div className="bg-green-50 text-green-800 p-4 rounded-md">
-                  <p className="font-medium">Reset link sent!</p>
+                  <p className="font-medium">Reset email sent!</p>
                   <p className="text-sm mt-1">
                     We've sent an email to <span className="font-semibold">{form.getValues().email}</span> with instructions to reset your password.
+                  </p>
+                  <p className="text-xs mt-2 text-green-700">
+                    (Note: In this demo, check the browser console for the reset link)
                   </p>
                 </div>
                 
