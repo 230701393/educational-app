@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -30,7 +31,7 @@ const Login = () => {
   // Redirect if already logged in
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/");
+      navigate("/analytics");
     }
   }, [isAuthenticated, navigate]);
 
@@ -50,8 +51,8 @@ const Login = () => {
       const { success, error } = await login(values.email, values.password);
       
       if (success) {
-        // Navigate to the home page after successful login
-        navigate("/");
+        // Navigate to the analytics page after successful login
+        navigate("/analytics");
       }
     } catch (err) {
       console.error("Login error:", err);
