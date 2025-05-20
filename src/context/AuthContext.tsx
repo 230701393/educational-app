@@ -33,7 +33,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [isLoading, setIsLoading] = useState(true);
   const [session, setSession] = useState<Session | null>(null);
   const { toast } = useToast();
-  const navigate = useNavigate();
 
   useEffect(() => {
     // Set up auth state listener FIRST
@@ -227,8 +226,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         title: "Logged out",
         description: "You have been logged out successfully.",
       });
-      // After logout, redirect to dashboard
-      navigate("/dashboard");
     } catch (error) {
       console.error("Logout error:", error);
       toast({
