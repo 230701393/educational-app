@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,9 +9,9 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Mail, User, Key, UserPlus, Eye, EyeOff, AlertCircle } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { authService } from "@/services/authService";
+import { useAuth } from "@/context/AuthContext";
 
 const signUpSchema = z.object({
   fullName: z.string().min(2, { message: "Name must be at least 2 characters" }),
@@ -29,9 +30,17 @@ type SignUpFormValues = z.infer<typeof signUpSchema>;
 const SignUp = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { signUp, isAuthenticated } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/dashboard");
+    }
+  }, [isAuthenticated, navigate]);
 
   const form = useForm<SignUpFormValues>({
     resolver: zodResolver(signUpSchema),
@@ -47,31 +56,20 @@ const SignUp = () => {
     setIsLoading(true);
     
     try {
-      const { user, error } = await authService.signUp(
+      const { success, error } = await signUp(
         values.email, 
         values.password,
         values.fullName
       );
       
-      if (error || !user) {
-        toast({
-          title: "Registration failed",
-          description: error || "Could not create account. Please try again.",
-          variant: "destructive",
-        });
-        setIsLoading(false);
-        return;
+      if (success) {
+        // Auth context will show success message
+        
+        // Redirect to login after successful signup
+        setTimeout(() => {
+          navigate("/login");
+        }, 1500);
       }
-      
-      toast({
-        title: "Account created successfully!",
-        description: "Please check your email for verification instructions.",
-      });
-      
-      // Redirect to login after successful signup
-      setTimeout(() => {
-        navigate("/login");
-      }, 1500);
     } catch (err) {
       console.error("Signup error:", err);
       toast({

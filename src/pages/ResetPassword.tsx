@@ -9,8 +9,8 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Lock, ArrowLeft } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { authService } from "@/services/authService";
+import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const resetPasswordSchema = z.object({
   password: z.string()
@@ -31,9 +31,7 @@ const ResetPassword = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
-  const token = searchParams.get('token');
   const [isLoading, setIsLoading] = useState(false);
-  const [isTokenValid, setIsTokenValid] = useState<boolean | null>(null);
   const [isCompleted, setIsCompleted] = useState(false);
 
   const form = useForm<ResetPasswordFormValues>({
@@ -44,54 +42,18 @@ const ResetPassword = () => {
     },
   });
 
-  useEffect(() => {
-    const verifyToken = async () => {
-      if (!token) {
-        setIsTokenValid(false);
-        toast({
-          title: "Invalid reset link",
-          description: "The password reset link is invalid or has expired.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      try {
-        const { valid } = await authService.verifyResetToken(token);
-        setIsTokenValid(valid);
-        
-        if (!valid) {
-          toast({
-            title: "Invalid reset link",
-            description: "The password reset link is invalid or has expired.",
-            variant: "destructive",
-          });
-        }
-      } catch (err) {
-        console.error("Token verification error:", err);
-        setIsTokenValid(false);
-        toast({
-          title: "Error",
-          description: "An error occurred while verifying your reset link.",
-          variant: "destructive",
-        });
-      }
-    };
-
-    verifyToken();
-  }, [token, toast]);
-
   const onSubmit = async (values: ResetPasswordFormValues) => {
-    if (!token) return;
     setIsLoading(true);
     
     try {
-      const { success, error } = await authService.resetPassword(token, values.password);
+      const { error } = await supabase.auth.updateUser({
+        password: values.password
+      });
       
-      if (!success || error) {
+      if (error) {
         toast({
           title: "Error",
-          description: error || "Unable to reset password. Please try again.",
+          description: error.message || "Unable to reset password. Please try again.",
           variant: "destructive",
         });
         setIsLoading(false);
@@ -119,53 +81,6 @@ const ResetPassword = () => {
   const handleLoginClick = () => {
     navigate('/login');
   };
-
-  if (isTokenValid === null) {
-    // Loading state
-    return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50">
-        <Card className="w-full max-w-md shadow-lg">
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]" />
-              <p className="mt-4">Verifying your reset link...</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  if (isTokenValid === false) {
-    // Invalid token
-    return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50">
-        <div className="w-full max-w-md">
-          <div className="text-center mb-8">
-            <Link to="/" className="text-2xl font-bold text-blue-500">KnowledgeCraft</Link>
-          </div>
-          <Card className="shadow-lg">
-            <CardHeader>
-              <CardTitle className="text-2xl font-bold text-center">Invalid Reset Link</CardTitle>
-              <CardDescription className="text-center">
-                The password reset link is invalid or has expired.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="pt-4">
-              <div className="flex flex-col gap-4">
-                <Button onClick={() => navigate('/forgot-password')} variant="outline">
-                  Request a new reset link
-                </Button>
-                <Button onClick={() => navigate('/login')}>
-                  Back to Login
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50">

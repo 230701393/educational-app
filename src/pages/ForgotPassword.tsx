@@ -9,8 +9,8 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Mail, ArrowLeft } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { authService } from "@/services/authService";
+import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const forgotPasswordSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -35,34 +35,30 @@ const ForgotPassword = () => {
     setIsLoading(true);
     
     try {
-      const { success, error } = await authService.forgotPassword(values.email);
+      const { error } = await supabase.auth.resetPasswordForEmail(values.email, {
+        redirectTo: window.location.origin + '/reset-password',
+      });
       
-      if (!success || error) {
+      if (error) {
         toast({
           title: "Error",
-          description: error || "Unable to send reset link. Please try again later.",
+          description: error.message || "Unable to process your request.",
           variant: "destructive",
         });
         setIsLoading(false);
         return;
       }
       
-      // Show success message
-      toast({
-        title: "Reset email sent",
-        description: "Please check your email for password reset instructions.",
-      });
-      
       setIsSubmitted(true);
-
-      // In a production environment, the email would be sent by the backend
-      // For demo purposes, we're logging to the console - check the browser console
-      console.log("Note: In a real environment, an email would be sent. For this demo, check the console logs for the reset link.");
+      toast({
+        title: "Email sent",
+        description: "If an account exists with this email, you will receive a password reset link.",
+      });
     } catch (err) {
-      console.error("Password reset error:", err);
+      console.error("Password reset request error:", err);
       toast({
         title: "Error",
-        description: "An unexpected error occurred. Please try again.",
+        description: "An unexpected error occurred. Please try again later.",
         variant: "destructive",
       });
     } finally {
@@ -82,9 +78,9 @@ const ForgotPassword = () => {
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold text-center">Forgot Password</CardTitle>
             <CardDescription className="text-center">
-              {!isSubmitted
-                ? "Enter your email and we'll send you a link to reset your password"
-                : "Check your email for the reset link"}
+              {!isSubmitted 
+                ? "Enter your email and we'll send you a password reset link" 
+                : "Check your inbox for the reset link"}
             </CardDescription>
           </CardHeader>
           
@@ -122,47 +118,44 @@ const ForgotPassword = () => {
                     {isLoading ? (
                       <span className="flex items-center gap-2">
                         <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" /> 
-                        Sending reset link...
+                        Sending link...
                       </span>
                     ) : (
-                      "Send Reset Email"
+                      "Send Reset Link"
                     )}
                   </Button>
                 </form>
               </Form>
             ) : (
-              <div className="text-center space-y-4">
-                <div className="bg-green-50 text-green-800 p-4 rounded-md">
-                  <p className="font-medium">Reset email sent!</p>
-                  <p className="text-sm mt-1">
-                    We've sent an email to <span className="font-semibold">{form.getValues().email}</span> with instructions to reset your password.
+              <div className="text-center space-y-6">
+                <div className="bg-blue-50 text-blue-800 p-4 rounded-md">
+                  <p>
+                    If an account exists with <strong>{form.getValues().email}</strong>,
+                    we've sent a password reset link.
                   </p>
-                  <p className="text-xs mt-2 text-green-700">
-                    (Note: In this demo, check the browser console for the reset link)
+                  <p className="mt-2 text-sm">
+                    The link will expire in 24 hours.
                   </p>
                 </div>
                 
                 <Button 
                   variant="outline" 
-                  className="w-full" 
-                  onClick={() => {
-                    form.reset();
-                    setIsSubmitted(false);
-                  }}
+                  className="w-full"
+                  onClick={() => navigate('/login')}
                 >
-                  Try with different email
+                  Back to Login
                 </Button>
               </div>
             )}
           </CardContent>
           
-          <CardFooter className="flex justify-center">
-            <div className="text-center text-sm text-muted-foreground">
+          {!isSubmitted && (
+            <CardFooter className="flex justify-center">
               <Link to="/login" className="text-blue-500 hover:text-blue-700 inline-flex items-center gap-1">
                 <ArrowLeft className="h-3 w-3" /> Back to login
               </Link>
-            </div>
-          </CardFooter>
+            </CardFooter>
+          )}
         </Card>
       </div>
     </div>

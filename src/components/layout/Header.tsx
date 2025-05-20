@@ -1,7 +1,6 @@
 
-import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Bell, MessageSquare, User, LogOut } from "lucide-react";
+import { Bell, MessageSquare, LogOut, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -11,27 +10,28 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/context/AuthContext";
 
 export function Header() {
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const [notifications] = useState(3);
-  const [messages] = useState(2);
+  const { user, isAuthenticated, logout } = useAuth();
   
-  // This would normally come from an auth context
-  const [isLoggedIn] = useState(true);
+  // Sample notification counts - would come from a real notification system
+  const notifications = 3;
+  const messages = 2;
 
-  const handleLogout = () => {
-    toast({
-      title: "Logged out successfully",
-      description: "You have been logged out of your account",
-    });
-    
-    // Redirect to login page after logout
-    setTimeout(() => {
-      navigate("/login");
-    }, 1000);
+  const handleLogout = async () => {
+    await logout();
+    navigate("/login");
+  };
+
+  const getInitials = (name?: string) => {
+    if (!name) return "U";
+    return name
+      .split(" ")
+      .map(n => n[0])
+      .join("")
+      .toUpperCase();
   };
 
   return (
@@ -59,7 +59,7 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-4">
-          {isLoggedIn ? (
+          {isAuthenticated ? (
             <>
               <Button variant="ghost" size="icon" className="relative">
                 <Bell className="h-5 w-5" />
@@ -83,14 +83,22 @@ export function Header() {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                     <Avatar className="h-10 w-10">
-                      <AvatarImage src="/avatar.png" alt="User" />
+                      <AvatarImage src={user?.avatar_url} alt={user?.fullName} />
                       <AvatarFallback>
-                        <User className="h-6 w-6" />
+                        {getInitials(user?.fullName)}
                       </AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <div className="flex flex-col items-center py-2">
+                    <p className="font-medium">{user?.fullName}</p>
+                    <p className="text-xs text-muted-foreground">{user?.email}</p>
+                    <span className="mt-2 text-xs px-2 py-1 rounded bg-blue-100 text-blue-800 capitalize">
+                      {user?.role}
+                    </span>
+                  </div>
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem>
                     <Link to="/profile" className="flex w-full">My Profile</Link>
                   </DropdownMenuItem>

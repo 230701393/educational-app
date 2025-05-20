@@ -10,8 +10,9 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Checkbox } from "@/components/ui/checkbox";
 import { LogIn, User, Key, Eye, EyeOff } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { authService } from "@/services/authService";
+import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/context/AuthContext";
+import { useEffect } from "react";
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -24,8 +25,16 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { login, isAuthenticated } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/dashboard");
+    }
+  }, [isAuthenticated, navigate]);
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -40,32 +49,12 @@ const Login = () => {
     setIsLoading(true);
     
     try {
-      const { user, error } = await authService.login(values.email, values.password);
+      const { success, error } = await login(values.email, values.password);
       
-      if (error || !user) {
-        toast({
-          title: "Login failed",
-          description: error || "Invalid credentials. Please try again.",
-          variant: "destructive",
-        });
-        setIsLoading(false);
-        return;
-      }
-      
-      toast({
-        title: "Login successful!",
-        description: "Redirecting to dashboard...",
-      });
-      
-      // Save user info to local storage (temporary until proper auth is set up)
-      if (values.rememberMe) {
-        localStorage.setItem("user", JSON.stringify(user));
-      }
-      
-      // Redirect after successful login
-      setTimeout(() => {
+      if (success) {
+        // Auth context will handle the toast
         navigate("/dashboard");
-      }, 1000);
+      }
     } catch (err) {
       console.error("Login error:", err);
       toast({
