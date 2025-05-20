@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +11,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { LogIn, User, Key, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/context/AuthContext";
-import { useEffect } from "react";
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -32,7 +30,7 @@ const Login = () => {
   // Redirect if already logged in
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/dashboard");
+      navigate("/");
     }
   }, [isAuthenticated, navigate]);
 
@@ -52,8 +50,8 @@ const Login = () => {
       const { success, error } = await login(values.email, values.password);
       
       if (success) {
-        // Auth context will handle the toast
-        navigate("/dashboard");
+        // Navigate to the home page after successful login
+        navigate("/");
       }
     } catch (err) {
       console.error("Login error:", err);

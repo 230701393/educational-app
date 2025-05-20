@@ -1,8 +1,8 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { User as SupabaseUser, Session } from '@supabase/supabase-js';
+import { useNavigate } from "react-router-dom";
 
 export interface User {
   id: string;
@@ -10,6 +10,7 @@ export interface User {
   fullName?: string;
   role: 'admin' | 'publisher' | 'sme' | 'learner';
   organization?: string;
+  avatar_url?: string;
 }
 
 interface AuthContextType {
@@ -85,7 +86,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           email: session?.user?.email || '',
           fullName: profile.full_name,
           role: profile.role as 'admin' | 'publisher' | 'sme' | 'learner',
-          organization: profile.organization
+          organization: profile.organization,
+          avatar_url: profile.avatar_url
         };
         setUser(userData);
       }
