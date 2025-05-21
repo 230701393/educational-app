@@ -22,7 +22,7 @@ export function Header() {
 
   const handleLogout = async () => {
     await logout();
-    navigate("/dashboard");
+    navigate("/login");
   };
 
   const getInitials = (name?: string) => {

@@ -18,12 +18,6 @@ export default function CourseView() {
   const [course, setCourse] = useState<any>(null);
 
   useEffect(() => {
-    // If not authenticated, redirect to login
-    if (!isAuthenticated) {
-      navigate("/login");
-      return;
-    }
-
     // Mock fetching course data
     const fetchCourse = async () => {
       setIsLoading(true);
@@ -86,7 +80,7 @@ export default function CourseView() {
     };
 
     fetchCourse();
-  }, [id, isAuthenticated, navigate]);
+  }, [id]);
 
   if (isLoading) {
     return (
