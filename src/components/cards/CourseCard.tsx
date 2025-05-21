@@ -3,6 +3,7 @@ import { Book, Clock, Star, Users } from "lucide-react";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Link } from "react-router-dom";
 
 interface CourseCardProps {
   id: string;
@@ -75,12 +76,12 @@ export function CourseCard({
         )}
       </CardContent>
       <CardFooter>
-        <a 
-          href={`/courses/${id}`} 
+        <Link 
+          to={`/courses/${id}`}
           className="w-full py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-center font-medium transition-colors"
         >
           {progress !== undefined && progress > 0 ? "Continue Learning" : "Start Course"}
-        </a>
+        </Link>
       </CardFooter>
     </Card>
   );

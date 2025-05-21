@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Dashboard from "./pages/Dashboard";
 import Courses from "./pages/Courses";
+import CourseView from "./pages/CourseView";
 import LearningPaths from "./pages/LearningPaths";
 import Profile from "./pages/Profile";
 import CourseBuilder from "./pages/CourseBuilder";
@@ -39,6 +40,7 @@ const App = () => {
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/courses" element={<Courses />} />
+              <Route path="/courses/:id" element={<CourseView />} />
               <Route path="/learning-paths" element={<LearningPaths />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/course-builder" element={<CourseBuilder />} />
