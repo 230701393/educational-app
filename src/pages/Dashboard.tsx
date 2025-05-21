@@ -2,24 +2,21 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
-import { ProgressStats } from "@/components/dashboard/ProgressStats";
-import { EnrolledCourses } from "@/components/dashboard/EnrolledCourses";
-import { RecommendedPaths } from "@/components/dashboard/RecommendedPaths";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BookOpen, MapPin, Award, Settings, UserPlus } from "lucide-react";
 import { useEffect } from "react";
 
 function Dashboard() {
-  const { user, isAuthenticated, isAdmin, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
   const navigate = useNavigate();
 
-  // Redirect authenticated users to Analytics page
+  // Redirect authenticated users to Analytics page, but only after loading is complete
   useEffect(() => {
     if (isAuthenticated && !isLoading) {
       navigate("/analytics");
     }
   }, [isAuthenticated, isLoading, navigate]);
 
+  // Show loading state while determining authentication
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -48,8 +45,12 @@ function Dashboard() {
     );
   }
 
-  // This part should never execute due to the redirect, but included as a fallback
-  return null;
+  // This part should never execute due to the redirect, but removed the "return null" to avoid potential issues
+  return (
+    <div className="flex flex-col items-center justify-center h-screen">
+      <p>Redirecting to Analytics...</p>
+    </div>
+  );
 }
 
 export default Dashboard;

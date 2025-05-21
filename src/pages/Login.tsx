@@ -28,7 +28,7 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  // Redirect if already logged in
+  // Redirect if already logged in, but only once on component mount
   useEffect(() => {
     if (isAuthenticated) {
       navigate("/analytics");
@@ -53,10 +53,17 @@ const Login = () => {
       if (success) {
         // Navigate to the analytics page after successful login
         navigate("/analytics");
+      } else if (error) {
+        toast({
+          variant: "destructive",
+          title: "Login failed",
+          description: error || "Invalid credentials",
+        });
       }
     } catch (err) {
       console.error("Login error:", err);
       toast({
+        variant: "destructive",
         title: "Login failed",
         description: "An unexpected error occurred. Please try again.",
         variant: "destructive",

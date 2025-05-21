@@ -221,13 +221,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const logout = async () => {
     try {
+      setIsLoading(true);
       await supabase.auth.signOut();
       setUser(null);
       toast({
         title: "Logged out",
         description: "You have been logged out successfully.",
       });
-      // After logout, redirect to dashboard
+      // After logout, redirect to dashboard - ensure this happens only after signOut completes
       navigate("/dashboard");
     } catch (error) {
       console.error("Logout error:", error);
@@ -236,6 +237,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         title: "Logout error",
         description: "An error occurred during logout",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
